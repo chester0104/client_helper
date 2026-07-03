@@ -1,0 +1,38 @@
+{
+  "customer": {
+    "name": "John Doe",
+    "account_id": "MER-100482",
+    "email": "john.doe@example.com",
+    "phone": "1-512-555-0142",
+    "plan": "Business (Net-30)",
+    "member_since": "2021-03-14",
+    "shipping_address": "123 Maple Street, Austin, TX 78701"
+  },
+  "orders": [
+    {
+      "order_id": "ORD-58231",
+      "date": "2026-06-18",
+      "items": [{ "product": "Pro Widget", "qty": 4, "unit_price": 59 }],
+      "total": 236.00,
+      "status": "Shipped",
+      "tracking": "1Z999AA10123456784",
+      "eta": "2026-06-25"
+    },
+    {
+      "order_id": "ORD-57110",
+      "date": "2026-05-02",
+      "items": [{ "product": "Standard Widget", "qty": 10, "unit_price": 29 }],
+      "total": 290.00,
+      "status": "Delivered",
+      "tracking": "1Z999AA10987654321",
+      "delivered": "2026-05-07"
+    },
+    {
+      "order_id": "ORD-56004",
+      "date": "2026-04-11",
+      "items": [{ "product": "Enterprise Widget", "qty": 2, "unit_price": 450 }],
+      "total": 900.00,
+      "status": "Processing"
+    }
+  ]
+}

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meridian Supply Co. - Premium Widgets for Business</title>
+
+  <!-- Set the theme before first paint to avoid a flash of the wrong colors. -->
+  <script>
+    (function () {
+      var t = localStorage.getItem("theme") ||
+        (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
+
+  <!-- Landing-page-specific layout. Shared chrome (theme, nav, buttons, cards,
+       chat widget) lives in chat_widget.html, included at the end of <body>. -->
+  <style>
+    /* Hero. */
+    .hero {
+      padding: 88px 6vw 96px;
+      text-align: center;
+      background: linear-gradient(135deg, var(--hero-grad-1), var(--hero-grad-2));
+      color: #fff;
+    }
+    .hero h1 {
+      margin: 0 auto 16px;
+      max-width: 760px;
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+    }
+    .hero p { margin: 0 auto 32px; max-width: 560px; font-size: 1.15rem; opacity: 0.92; }
+    .hero .btn-ghost { color: #fff; border-color: rgba(255,255,255,0.6); }
+    .hero .btn-ghost:hover { background: rgba(255,255,255,0.12); border-color: #fff; color: #fff; }
+    .hero-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+    /* Generic section layout. */
+    .section { padding: 80px 6vw; max-width: 1100px; margin: 0 auto; }
+    .section h2 { text-align: center; font-size: clamp(1.6rem, 3vw, 2.2rem); letter-spacing: -0.02em; margin: 0 0 8px; }
+    .section .lead { text-align: center; color: var(--muted); margin: 0 0 48px; }
+
+    /* Card grids (products & pricing). The .card surface is defined in the shared partial. */
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
+    .card { transition: transform 0.15s, box-shadow 0.15s; }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.08); }
+    .card h3 { margin: 0 0 6px; font-size: 1.2rem; }
+    .card p { color: var(--muted); margin: 0 0 18px; }
+    .price { font-size: 2rem; font-weight: 700; }
+    .price small { font-size: 0.9rem; font-weight: 400; color: var(--muted); }
+    .card .btn { width: 100%; text-align: center; margin-top: 8px; }
+    .card.featured { border-color: var(--brand); box-shadow: 0 0 0 1px var(--brand); }
+    .badge { display: inline-block; background: var(--brand); color: #fff; font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; margin-bottom: 12px; }
+
+    /* About stats. */
+    .stats { display: flex; flex-wrap: wrap; justify-content: center; gap: 48px; margin-top: 8px; }
+    .stat { text-align: center; }
+    .stat .num { font-size: 2rem; font-weight: 700; color: var(--brand); }
+    .stat .label { color: var(--muted); }
+    #about { background: var(--surface-alt); border-radius: 24px; }
+
+    /* Footer. */
+    footer { padding: 56px 6vw; border-top: 1px solid var(--border); color: var(--muted); display: flex; flex-wrap: wrap; gap: 32px; justify-content: space-between; }
+    footer a { color: var(--brand); }
+    footer h4 { color: var(--text); margin: 0 0 10px; }
+  </style>
+</head>
+
+<body>
+  <!-- Navigation. -->
+  <nav>
+    <div class="brand">Meridian<span>.</span></div>
+    <div class="nav-links">
+      <a href="#products">Products</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+      <a href="/account">Account</a>
+      <button id="nav-theme" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
+    </div>
+  </nav>
+
+  <!-- Hero. -->
+  <header class="hero">
+    <h1>Premium widgets for businesses that mean business.</h1>
+    <p>Meridian Supply Co. has equipped teams worldwide since 2015 with dependable,
+       warranty-backed widgets and net-30 invoicing.</p>
+    <div class="hero-actions">
+      <a href="#pricing" class="btn btn-primary">View pricing</a>
+      <button class="btn btn-ghost" data-open-chat>Chat with us</button>
+    </div>
+  </header>
+
+  <!-- Products. -->
+  <section id="products" class="section">
+    <h2>Our products</h2>
+    <p class="lead">Three tiers, engineered for every scale of operation.</p>
+    <div class="grid">
+      <div class="card">
+        <h3>Standard Widget</h3>
+        <p>The reliable everyday workhorse, ready to ship.</p>
+        <button class="btn btn-ghost" data-open-chat>Learn more</button>
+      </div>
+      <div class="card">
+        <h3>Pro Widget</h3>
+        <p>Higher throughput with a full 2-year warranty included.</p>
+        <button class="btn btn-ghost" data-open-chat>Learn more</button>
+      </div>
+      <div class="card">
+        <h3>Enterprise Widget</h3>
+        <p>Tailored specifications and volume pricing for large deployments.</p>
+        <button class="btn btn-ghost" data-open-chat>Learn more</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing. -->
+  <section id="pricing" class="section">
+    <h2>Simple, transparent pricing</h2>
+    <p class="lead">No hidden fees. Business clients can request net-30 invoicing at checkout.</p>
+    <div class="grid">
+      <div class="card">
+        <h3>Standard</h3>
+        <div class="price">$29 <small>/ unit</small></div>
+        <p>Perfect for small teams getting started.</p>
+        <button class="btn btn-primary" data-open-chat>Order Standard</button>
+      </div>
+      <div class="card featured">
+        <span class="badge">Most popular</span>
+        <h3>Pro</h3>
+        <div class="price">$59 <small>/ unit</small></div>
+        <p>Includes a 2-year warranty and priority support.</p>
+        <button class="btn btn-primary" data-open-chat>Order Pro</button>
+      </div>
+      <div class="card">
+        <h3>Enterprise</h3>
+        <div class="price">Custom</div>
+        <p>Volume pricing tailored to your requirements.</p>
+        <button class="btn btn-primary" data-open-chat>Contact sales</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- About. -->
+  <section id="about" class="section">
+    <h2>About Meridian</h2>
+    <p class="lead">Headquartered in Austin, Texas, and trusted by businesses around the world.</p>
+    <div class="stats">
+      <div class="stat"><div class="num">2015</div><div class="label">Founded</div></div>
+      <div class="stat"><div class="num">Global</div><div class="label">Shipping</div></div>
+      <div class="stat"><div class="num">2-yr</div><div class="label">Pro warranty</div></div>
+      <div class="stat"><div class="num">Net-30</div><div class="label">Invoicing</div></div>
+    </div>
+  </section>
+
+  <!-- Footer / Contact. -->
+  <footer id="contact">
+    <div>
+      <h4>Meridian Supply Co.</h4>
+      Premium widgets for business.<br />Austin, Texas.
+    </div>
+    <div>
+      <h4>Contact</h4>
+      Support: <a href="mailto:support@meridian-supply.example.com">support@meridian-supply.example.com</a><br />
+      Sales: <a href="mailto:sales@meridian-supply.example.com">sales@meridian-supply.example.com</a><br />
+      Phone: 1-800-555-0100
+    </div>
+    <div>
+      <h4>Hours (US Central)</h4>
+      Mon–Fri: 9:00 AM – 6:00 PM<br />
+      Sat: 10:00 AM – 2:00 PM<br />
+      Sun: Closed
+    </div>
+  </footer>
+
+  <!-- Shared theme, nav styling, and the floating chat widget. -->
+  {% include "chat_widget.html" %}
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Account - Meridian Supply Co.</title>
+
+  <!-- Set the theme before first paint to avoid a flash of the wrong colors. -->
+  <script>
+    (function () {
+      var t = localStorage.getItem("theme") ||
+        (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
+
+  <!-- Account-page-specific layout. Shared chrome lives in chat_widget.html. -->
+  <style>
+    .account { max-width: 1000px; margin: 0 auto; padding: 48px 6vw; }
+    .account-head { margin-bottom: 28px; }
+    .account-head h1 { margin: 0 0 4px; font-size: clamp(1.6rem, 3vw, 2.2rem); letter-spacing: -0.02em; }
+    .account-head .sub { color: var(--muted); margin: 0 0 18px; }
+
+    .account-grid { display: grid; grid-template-columns: 1fr 1.6fr; gap: 24px; align-items: start; }
+    .card h3 { margin: 0 0 16px; font-size: 1.15rem; }
+
+    /* Profile key/value list. */
+    dl { display: grid; grid-template-columns: auto 1fr; gap: 10px 18px; margin: 0; }
+    dt { color: var(--muted); }
+    dd { margin: 0; }
+
+    /* Orders table. */
+    table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+    th, td { text-align: left; padding: 11px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { color: var(--muted); font-weight: 600; }
+    tr:last-child td { border-bottom: none; }
+
+    /* Status pills. */
+    .status { font-size: 0.78rem; font-weight: 600; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+    .status-shipped    { background: #dbeafe; color: #1e40af; }
+    .status-delivered  { background: #dcfce7; color: #166534; }
+    .status-processing { background: #fef9c3; color: #854d0e; }
+
+    @media (max-width: 760px) { .account-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+
+<body>
+  <!-- Navigation. -->
+  <nav>
+    <div class="brand"><a href="/">Meridian<span>.</span></a></div>
+    <div class="nav-links">
+      <a href="/#products">Products</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/">Home</a>
+      <button id="nav-theme" title="Toggle dark mode" aria-label="Toggle dark mode">🌙</button>
+    </div>
+  </nav>
+
+  <!-- All values come from account.json (via the `account` template variable),
+       the same source the assistant reads from. Edit that file to change both. -->
+  <main class="account">
+    <div class="account-head">
+      <h1>Welcome back, {{ account.customer.name }}</h1>
+      <p class="sub">Account {{ account.customer.account_id }} · {{ account.customer.plan }}</p>
+      <button class="btn btn-primary" data-open-chat>Ask the assistant about an order</button>
+    </div>
+
+    <div class="account-grid">
+      <!-- Profile card. -->
+      <div class="card">
+        <h3>Account details</h3>
+        <dl>
+          <dt>Email</dt><dd>{{ account.customer.email }}</dd>
+          <dt>Phone</dt><dd>{{ account.customer.phone }}</dd>
+          <dt>Member since</dt><dd>{{ account.customer.member_since }}</dd>
+          <dt>Ships to</dt><dd>{{ account.customer.shipping_address }}</dd>
+        </dl>
+      </div>
+
+      <!-- Order history. -->
+      <div class="card">
+        <h3>Order history</h3>
+        <table>
+          <thead>
+            <tr><th>Order</th><th>Date</th><th>Items</th><th>Total</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            {% for o in account.orders %}
+            <tr>
+              <td>{{ o.order_id }}</td>
+              <td>{{ o.date }}</td>
+              <td>{% for i in o["items"] %}{{ i.qty }}× {{ i.product }}{% if not loop.last %}, {% endif %}{% endfor %}</td>
+              <td>${{ "%.2f"|format(o.total) }}</td>
+              <td><span class="status status-{{ o.status|lower }}">{{ o.status }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Shared theme, nav styling, and the floating chat widget. -->
+  {% include "chat_widget.html" %}
+</body>
+</html>

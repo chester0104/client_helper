@@ -1,0 +1,297 @@
+{# Shared chrome included at the end of <body> on every page: theme palette,
+   base styles, top-nav + button styling, and the floating chat widget.
+   Each page supplies its own <nav> markup (with a #nav-theme button) and any
+   [data-open-chat] triggers; the styling and behavior live here so there is a
+   single source of truth. #}
+<style>
+  /* Light theme palette. The dark theme overrides these same variables. */
+  :root {
+    --brand:#4f46e5; --brand-dark:#4338ca; --bg:#f8fafc; --surface:#ffffff;
+    --surface-alt:#f1f5f9; --bot-bubble:#ffffff; --border:#e2e8f0;
+    --text:#0f172a; --muted:#64748b; --code-bg:#f1f5f9;
+    --hero-grad-1:#4f46e5; --hero-grad-2:#7c3aed;
+  }
+  :root[data-theme="dark"] {
+    --brand:#818cf8; --brand-dark:#6366f1; --bg:#0f172a; --surface:#1e293b;
+    --surface-alt:#172033; --bot-bubble:#334155; --border:#334155;
+    --text:#e2e8f0; --muted:#94a3b8; --code-bg:#0f172a;
+    --hero-grad-1:#4338ca; --hero-grad-2:#6d28d9;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin:0; font-family: system-ui,-apple-system,"Segoe UI",sans-serif;
+         background: var(--bg); color: var(--text); line-height:1.6; }
+  a { color: inherit; text-decoration: none; }
+  section { scroll-margin-top: 80px; }
+
+  /* Top navigation (markup supplied per page). */
+  nav { position:sticky; top:0; z-index:10; display:flex; align-items:center;
+        justify-content:space-between; padding:14px 6vw;
+        background: color-mix(in srgb, var(--surface) 88%, transparent);
+        backdrop-filter: blur(8px); border-bottom:1px solid var(--border); }
+  .brand { font-weight:700; font-size:1.25rem; letter-spacing:-0.02em; }
+  .brand span { color: var(--brand); }
+  .nav-links { display:flex; align-items:center; gap:28px; }
+  .nav-links a { color: var(--muted); font-weight:500; transition:color .15s; }
+  .nav-links a:hover { color: var(--text); }
+  #nav-theme { background: var(--surface-alt); border:1px solid var(--border);
+               color: var(--text); width:36px; height:36px; border-radius:9px;
+               cursor:pointer; font-size:1rem; }
+  #nav-theme:hover { border-color: var(--brand); }
+
+  /* Buttons. */
+  .btn { display:inline-block; padding:12px 22px; border-radius:10px;
+         font-size:1rem; font-weight:600; cursor:pointer;
+         border:1px solid transparent; transition:transform .1s, background .15s; }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary { background: var(--brand); color:#fff; }
+  .btn-primary:hover { background: var(--brand-dark); }
+  .btn-ghost { background:transparent; color: var(--text); border-color: var(--border); }
+  .btn-ghost:hover { border-color: var(--brand); color: var(--brand); }
+
+  /* Card surface shared by the landing and account pages. */
+  .card { background: var(--surface); border:1px solid var(--border);
+          border-radius:16px; padding:28px; }
+
+  /* Chat launcher (collapsed state). */
+  #chat-launcher { position:fixed; bottom:24px; right:24px; width:60px; height:60px;
+    border-radius:50%; background: var(--brand); color:#fff; border:none;
+    font-size:1.6rem; cursor:pointer; box-shadow:0 8px 24px rgba(79,70,229,.4);
+    z-index:50; transition:transform .12s, background .15s; }
+  #chat-launcher:hover { transform:scale(1.06); background: var(--brand-dark); }
+
+  /* Chat widget (expanded state). Pinned bottom-right; JS sets width/height. */
+  #chat-widget { position:fixed; bottom:24px; right:24px; z-index:60;
+    display:flex; flex-direction:column; background: var(--surface);
+    border:1px solid var(--border); border-radius:16px;
+    box-shadow:0 16px 50px rgba(0,0,0,.25); overflow:hidden;
+    min-width:320px; min-height:380px; }
+  #chat-widget[hidden] { display:none; }
+
+  /* Drag target in the top-left corner for resizing. */
+  #resize-handle { position:absolute; top:0; left:0; width:22px; height:22px;
+    cursor:nwse-resize; z-index:2; opacity:.6;
+    background: linear-gradient(135deg, transparent 55%, var(--muted) 55%,
+      var(--muted) 62%, transparent 62%, transparent 74%, var(--muted) 74%,
+      var(--muted) 81%, transparent 81%); }
+  #resize-handle:hover { opacity:1; }
+
+  #widget-header { background: var(--brand); color:#fff; padding:14px 16px 14px 24px;
+    font-weight:600; display:flex; align-items:center; justify-content:space-between; }
+  #chat-close { background: rgba(255,255,255,.18); border:none; color:#fff;
+    width:30px; height:30px; border-radius:8px; font-size:1.2rem; line-height:1;
+    cursor:pointer; }
+  #chat-close:hover { background: rgba(255,255,255,.32); }
+
+  #messages { flex:1; padding:16px; overflow-y:auto; display:flex;
+    flex-direction:column; gap:10px; }
+  .msg { max-width:80%; padding:10px 14px; border-radius:14px; line-height:1.45;
+    word-wrap:break-word; }
+  .user { align-self:flex-end; background: var(--brand); color:#fff;
+    border-bottom-right-radius:4px; white-space:pre-wrap; }
+  .bot { align-self:flex-start; background: var(--bot-bubble);
+    border:1px solid var(--border); border-bottom-left-radius:4px; }
+  .bot > :first-child { margin-top:0; } .bot > :last-child { margin-bottom:0; }
+  .bot p { margin:.5em 0; } .bot ul, .bot ol { margin:.5em 0; padding-left:1.4em; }
+  .bot li { margin:.2em 0; } .bot a { color: var(--brand); }
+  .bot code { background: var(--code-bg); padding:.1em .35em; border-radius:4px; font-size:.9em; }
+  .bot pre { background: var(--code-bg); padding:10px; border-radius:8px; overflow-x:auto; }
+  .bot pre code { background:none; padding:0; }
+  .bot h1,.bot h2,.bot h3 { margin:.6em 0 .3em; font-size:1.05em; }
+  .typing { font-style:italic; color: var(--muted); }
+
+  #input-row { display:flex; gap:8px; padding:12px; border-top:1px solid var(--border); }
+  #input { flex:1; padding:10px 12px; border:1px solid var(--border);
+    border-radius:10px; font-size:1rem; outline:none;
+    background: var(--surface); color: var(--text); }
+  #input:focus { border-color: var(--brand); }
+  #send { padding:10px 18px; background: var(--brand); color:#fff; border:none;
+    border-radius:10px; font-size:1rem; cursor:pointer; }
+  #send:hover:not(:disabled) { background: var(--brand-dark); }
+  #send:disabled { opacity:.5; cursor:not-allowed; }
+
+  @media (max-width:640px) { .nav-links a:not(#nav-theme) { display:none; } }
+</style>
+
+<button id="chat-launcher" title="Chat with the Meridian Assistant" aria-label="Open chat">💬</button>
+
+<div id="chat-widget" hidden>
+  <div id="resize-handle" title="Drag to resize"></div>
+  <div id="widget-header">
+    <span>Meridian Assistant</span>
+    <button id="chat-close" title="Close" aria-label="Close chat">×</button>
+  </div>
+  <div id="messages"></div>
+  <div id="input-row">
+    <input id="input" type="text" placeholder="Ask a question..." autocomplete="off" />
+    <button id="send">Send</button>
+  </div>
+</div>
+
+<!-- Markdown parser (marked) + HTML sanitizer (DOMPurify) for chat replies. -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+<script>
+  /* Theme toggle. data-theme is set pre-paint by a small script in each page's
+     <head>; here we just sync the icon and handle clicks. */
+  const themeToggle = document.getElementById("nav-theme");
+  function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+    if (themeToggle) themeToggle.textContent = theme === "dark" ? "☀️" : "🌙";
+  }
+  applyTheme(document.documentElement.getAttribute("data-theme") || "light");
+  if (themeToggle) {
+    themeToggle.addEventListener("click", () => {
+      const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      applyTheme(next);
+      localStorage.setItem("theme", next);
+    });
+  }
+
+  /* Chat widget elements + conversation state. */
+  const launcher     = document.getElementById("chat-launcher");
+  const widget       = document.getElementById("chat-widget");
+  const closeBtn     = document.getElementById("chat-close");
+  const messagesEl   = document.getElementById("messages");
+  const inputEl      = document.getElementById("input");
+  const sendBtn      = document.getElementById("send");
+  const resizeHandle = document.getElementById("resize-handle");
+
+  const conversation = [];   // Full history, sent to the server each turn.
+  let greeted = false;
+  marked.setOptions({ breaks: true });
+
+  /* Open / close the widget. */
+  function openChat() {
+    // Default size: roughly a quarter of the screen, within sensible bounds.
+    if (!widget.style.width) {
+      widget.style.width  = Math.min(Math.max(window.innerWidth * 0.34, 340), 520) + "px";
+      widget.style.height = Math.min(Math.max(window.innerHeight * 0.6, 440), 680) + "px";
+    }
+    widget.hidden = false;
+    launcher.style.display = "none";
+    if (!greeted) {
+      addBubble("Hi! I'm the Meridian Assistant. How can I help with your order, account, or our products?", "bot");
+      greeted = true;
+    }
+    inputEl.focus();
+  }
+  function closeChat() { widget.hidden = true; launcher.style.display = "block"; }
+
+  launcher.addEventListener("click", openChat);
+  closeBtn.addEventListener("click", closeChat);
+  document.querySelectorAll("[data-open-chat]").forEach((el) => el.addEventListener("click", openChat));
+
+  /* Drag-to-resize from the top-left corner (widget is pinned bottom-right,
+     so dragging up/left enlarges it). Uses pointer events for mouse + touch. */
+  resizeHandle.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    const startX = e.clientX, startY = e.clientY;
+    const startW = widget.offsetWidth, startH = widget.offsetHeight;
+    resizeHandle.setPointerCapture(e.pointerId);
+    function onMove(ev) {
+      widget.style.width  = Math.min(Math.max(startW + (startX - ev.clientX), 320), window.innerWidth  * 0.95) + "px";
+      widget.style.height = Math.min(Math.max(startH + (startY - ev.clientY), 380), window.innerHeight * 0.9)  + "px";
+    }
+    function onUp(ev) {
+      resizeHandle.releasePointerCapture(ev.pointerId);
+      resizeHandle.removeEventListener("pointermove", onMove);
+      resizeHandle.removeEventListener("pointerup", onUp);
+    }
+    resizeHandle.addEventListener("pointermove", onMove);
+    resizeHandle.addEventListener("pointerup", onUp);
+  });
+
+  /* Render markdown into a bubble (re-run on each streamed token). */
+  function renderBot(el, text) {
+    el.innerHTML = DOMPurify.sanitize(marked.parse(text));
+    el.querySelectorAll("a").forEach((a) => { a.target = "_blank"; a.rel = "noopener noreferrer"; });
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  /* Add a bubble. Bot text renders as sanitized markdown; user text stays plain. */
+  function addBubble(text, who) {
+    const div = document.createElement("div");
+    div.className = "msg " + who;
+    if (who === "bot") renderBot(div, text);
+    else div.textContent = text;
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return div;
+  }
+
+  /* Send the message and stream the reply token-by-token via Server-Sent Events.
+     The server sends JSON frames: {type:"delta",text}, {type:"tool",name},
+     {type:"error",message}, {type:"done"}. */
+  async function sendMessage() {
+    const text = inputEl.value.trim();
+    if (!text) return;
+
+    addBubble(text, "user");
+    conversation.push({ role: "user", content: text });
+    inputEl.value = "";
+    sendBtn.disabled = true;
+
+    // Bot bubble starts as a placeholder, then fills as tokens arrive.
+    const bubble = addBubble("", "bot");
+    bubble.classList.add("typing");
+    bubble.textContent = "typing…";
+
+    let full = "";        // accumulated reply text
+    let started = false;  // has the first token arrived?
+
+    try {
+      const res = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: conversation }),
+      });
+      if (!res.ok || !res.body) throw new Error("bad response");
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+
+        // SSE frames are separated by a blank line.
+        const frames = buffer.split("\n\n");
+        buffer = frames.pop();                 // keep the last, possibly-partial frame
+        for (const frame of frames) {
+          const line = frame.trim();
+          if (!line.startsWith("data:")) continue;
+          const evt = JSON.parse(line.slice(5).trim());
+
+          if (evt.type === "delta") {
+            if (!started) { started = true; bubble.classList.remove("typing"); }
+            full += evt.text;
+            renderBot(bubble, full);
+          } else if (evt.type === "tool" && !started) {
+            bubble.textContent = "…looking that up…";   // shown while a tool runs
+          } else if (evt.type === "error") {
+            started = true;
+            bubble.classList.remove("typing");
+            full = evt.message;
+            renderBot(bubble, full);
+          }
+        }
+      }
+
+      if (!full) { bubble.classList.remove("typing"); renderBot(bubble, "(no response)"); }
+      conversation.push({ role: "assistant", content: full });
+    } catch (err) {
+      bubble.classList.remove("typing");
+      renderBot(bubble, "Network error. Please try again.");
+    } finally {
+      sendBtn.disabled = false;
+      inputEl.focus();
+    }
+  }
+
+  sendBtn.addEventListener("click", sendMessage);
+  inputEl.addEventListener("keydown", (e) => { if (e.key === "Enter") sendMessage(); });
+</script>
