@@ -19,6 +19,10 @@ orders are all made up.
   so the two never disagree.
 - Runs in a resizable corner widget, renders Markdown, and has a light/dark toggle.
 
+## Live demo
+
+https://client-helper.onrender.com
+
 ## Screenshots
 
 Order lookup and return - the assistant calls tools for the status, then starts
