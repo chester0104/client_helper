@@ -1,0 +1,14 @@
+{
+  "builds": [
+    {
+      "src": "main.py",
+      "use": "@vercel/python",
+      "config": {
+        "includeFiles": ["templates/**", "knowledge.md", "account.json"]
+      }
+    }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "main.py" }
+  ]
+}
